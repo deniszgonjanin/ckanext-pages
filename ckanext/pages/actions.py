@@ -3,20 +3,24 @@ import datetime
 import ckan.plugins as p
 import ckan.lib.navl.dictization_functions as df
 import ckan.new_authz as new_authz
-
 import ckan.lib.helpers as h
-
 import db
+
 def page_name_validator(key, data, errors, context):
     session = context['session']
     page = context.get('page')
-    group_id = context.get('group_id')
+
     if page and page == data[key]:
         return
 
-    query = session.query(db.Page.name).filter_by(name=data[key],
-                                                  group_id=group_id,
-                                                  lang=data[lang])
+    filter_by = { 'group_id': context.get('group_id'),
+                  'name': data[key]
+                }
+
+    if data.get(('lang',)):
+        filter_by['lang'] = data.get(('lang',))
+
+    query = session.query(db.Page.name).filter_by(**filter_by)
     result = query.first()
     if result:
         errors[key].append(
@@ -51,7 +55,7 @@ def _pages_show(context, data_dict):
         search['lang'] = data_dict.get('lang')
 
     out = db.Page.get(**search)
-    
+
     if out:
         out = db.table_dictize(out, context)
     return out
