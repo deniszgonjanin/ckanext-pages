@@ -4,6 +4,8 @@ import ckan.plugins as p
 import ckan.lib.navl.dictization_functions as df
 import ckan.new_authz as new_authz
 
+import ckan.lib.helpers as h
+
 import db
 def page_name_validator(key, data, errors, context):
     session = context['session']
@@ -12,7 +14,9 @@ def page_name_validator(key, data, errors, context):
     if page and page == data[key]:
         return
 
-    query = session.query(db.Page.name).filter_by(name=data[key], group_id=group_id)
+    query = session.query(db.Page.name).filter_by(name=data[key],
+                                                  group_id=group_id,
+                                                  lang=data[lang])
     result = query.first()
     if result:
         errors[key].append(
@@ -24,7 +28,7 @@ schema = {
     'name': [p.toolkit.get_validator('not_empty'), unicode,
              p.toolkit.get_validator('name_validator'), page_name_validator],
     'content': [p.toolkit.get_validator('ignore_missing'), unicode],
-  #  'lang': [p.toolkit.get_validator('not_empty'), unicode],
+    'lang': [p.toolkit.get_validator('ignore_empty'), unicode],
     'order': [p.toolkit.get_validator('ignore_missing'),
               unicode],
     'private': [p.toolkit.get_validator('ignore_missing'),
@@ -39,9 +43,15 @@ schema = {
 def _pages_show(context, data_dict):
     if db.pages_table is None:
         db.init_db(context['model'])
-    org_id = data_dict.get('org_id')
-    page = data_dict.get('page')
-    out = db.Page.get(group_id=org_id, name=page)
+
+    search = {'group_id': data_dict.get('org_id'),
+              'name': data_dict.get('page')
+             }
+    if data_dict.get('lang'):
+        search['lang'] = data_dict.get('lang')
+
+    out = db.Page.get(**search)
+    
     if out:
         out = db.table_dictize(out, context)
     return out
@@ -54,6 +64,7 @@ def _pages_list(context, data_dict):
     org_id = data_dict.get('org_id')
     ordered = data_dict.get('order')
     private = data_dict.get('private', True)
+    lang = data_dict.get('lang')
     if ordered:
         search['order'] = True
     if not org_id:
@@ -72,11 +83,14 @@ def _pages_list(context, data_dict):
         search['group_id'] = org_id
         if not member:
             search['private'] = False
+    if lang:
+        search['lang'] = lang
     out = db.Page.pages(**search)
     return [{'title': pg.title,
              'content': pg.content,
              'name': pg.name,
              'group_id': pg.group_id,
+             'lang': pg.lang
             } for pg in out]
 
 
@@ -111,7 +125,7 @@ def _pages_update(context, data_dict):
         out = db.Page()
         out.group_id = org_id
         out.name = page
-    items = ['title', 'content', 'name', 'private', 'order']
+    items = ['title', 'content', 'name', 'private', 'order', 'lang']
     for item in items:
         setattr(out, item, data.get(item))
 

@@ -1,4 +1,9 @@
 import ckan.plugins as p
+import logging
+
+import ckan.lib.helpers as h
+
+log = logging.getLogger(__name__)
 
 _ = p.toolkit._
 
@@ -193,9 +198,14 @@ class PagesController(p.toolkit.BaseController):
             page = page[1:]
         if not page:
             return self._pages_list_pages()
+
+        lang = h.lang()
+        #if lang != 'en':
+        #    page = "{0}_{1}".format(page, lang)
         _page = p.toolkit.get_action('ckanext_pages_show')(
             data_dict={'org_id': None,
-                       'page': page,}
+                       'page': page,
+                       'lang': lang}
         )
         if _page is None:
             return self._pages_list_pages()
@@ -227,19 +237,35 @@ class PagesController(p.toolkit.BaseController):
         return p.toolkit.render('ckanext_pages/confirm_delete.html', {'page': page})
 
 
-    def pages_edit(self, page=None, data=None, errors=None, error_summary=None):
+    def pages_edit(self, page=None,
+                   data=None, errors=None,
+                   error_summary=None):
         if page:
             page = page[1:]
-        _page = p.toolkit.get_action('ckanext_pages_show')(
+        _page = p.toolkit.get_action('ckanext_pages_list')(
             data_dict={'org_id': None,
-                       'page': page,}
+                       'page': page}
         )
+
+        log.info(_page)
+        log.info(page)
+        log.info(h.lang())
+
         if _page is None:
             _page = {}
 
+        elif len(_page) > 1:
+            _page = p.toolkit.get_action('ckanext_pages_show')(
+                data_dict= {'org_id': None,
+                            'page': page,
+                            'lang': h.lang()}
+            )
+        else:
+            _page = _page[0]
+
         if p.toolkit.request.method == 'POST' and not data:
             data = p.toolkit.request.POST
-            items = ['title', 'name', 'content', 'private', 'order']
+            items = ['title', 'name', 'content', 'private', 'order', 'lang']
 
             # update config from form
             for item in items:
@@ -274,6 +300,3 @@ class PagesController(p.toolkit.BaseController):
 
         return p.toolkit.render('ckanext_pages/pages_edit.html',
                                extra_vars=vars)
-
-
-

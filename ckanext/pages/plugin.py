@@ -28,7 +28,11 @@ def build_pages_nav_main(*args):
     output = h.build_nav_main(*new_args)
 
     # do not display any private datasets in menu even for sysadmins
-    pages_list = p.toolkit.get_action('ckanext_pages_list')(None, {'order': True, 'private': False})
+    pages_list = p.toolkit.get_action('ckanext_pages_list')(None, {
+            'order': True,
+            'private': False,
+            'lang': h.lang()
+            })
 
     page_name = ''
 

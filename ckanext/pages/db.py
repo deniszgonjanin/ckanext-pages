@@ -66,7 +66,7 @@ def init_db(model):
         sa.Column('title', types.UnicodeText, default=u''),
         sa.Column('name', types.UnicodeText, default=u''),
         sa.Column('content', types.UnicodeText, default=u''),
-        sa.Column('lang', types.UnicodeText, default=u''),
+        sa.Column('lang', types.UnicodeText, default=u'en'),
         sa.Column('order', types.UnicodeText, default=u''),
         sa.Column('private',types.Boolean,default=True),
         sa.Column('group_id', types.UnicodeText, default=None),
