@@ -200,8 +200,6 @@ class PagesController(p.toolkit.BaseController):
             return self._pages_list_pages()
 
         lang = h.lang()
-        #if lang != 'en':
-        #    page = "{0}_{1}".format(page, lang)
         _page = p.toolkit.get_action('ckanext_pages_show')(
             data_dict={'org_id': None,
                        'page': page,
