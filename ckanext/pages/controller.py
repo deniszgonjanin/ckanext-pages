@@ -214,7 +214,7 @@ class PagesController(p.toolkit.BaseController):
 
     def _pages_list_pages(self):
         p.toolkit.c.pages_dict = p.toolkit.get_action('ckanext_pages_list')(
-            data_dict={'org_id': None}
+            data_dict={'org_id': None, 'lang': h.lang()}
         )
         return p.toolkit.render('ckanext_pages/pages_list.html')
 
