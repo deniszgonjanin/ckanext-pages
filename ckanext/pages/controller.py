@@ -245,10 +245,6 @@ class PagesController(p.toolkit.BaseController):
                        'page': page}
         )
 
-        log.info(_page)
-        log.info(page)
-        log.info(h.lang())
-
         if not _page:
             _page = {}
 
