@@ -249,7 +249,7 @@ class PagesController(p.toolkit.BaseController):
         log.info(page)
         log.info(h.lang())
 
-        if _page is None:
+        if not _page:
             _page = {}
 
         elif len(_page) > 1:

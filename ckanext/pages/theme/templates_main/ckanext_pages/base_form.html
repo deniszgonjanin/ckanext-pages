@@ -63,6 +63,17 @@
     </div>
   {% endif %}
 
+  <div class="control-group" >
+      <label for="field-lang" class="control-label">{{ _('Language') }}</label>
+      <div class="controls">
+          <select id="field-lang" class="form-control" name="lang">
+              {% for option in h.get_available_locales() %}
+              <option value="{{ option.language }}" {% if option.language == data.lang %}selected="selected"{% endif %}>{{ option.language }}</option>
+              {% endfor %}
+          </select>
+      </div>
+  </div>
+
   {% if h.wysiwyg() %}
     {{ wysiwyg.editor('content', id='field-content', label=_('Content'), placeholder=_('Enter content here'), value=data.content|safe, error=errors.content) }}
   {% else %}
